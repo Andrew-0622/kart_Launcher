@@ -1295,6 +1295,7 @@ public static class MultyPlayer
         }
         room.Started = false;
         room.StartTicks = 0;
+        room.StartedPlayerCount = 0;
     }
 
     static void GrSlotDataPacket(int roomId, OutPacket outPacket, bool enter = false, string nickname = "")
@@ -1487,6 +1488,7 @@ public static class MultyPlayer
         }
 
         room.Started = true;
+        room.StartedPlayerCount = playerCount;
 
         bool ai = false;
         if (room.GetAiCount() > 0)

@@ -1123,8 +1123,8 @@ namespace KartRider
 
         private static void AddRandomTrackEntry(string trackIdentifier, string gameType, string name)
         {
+            if (string.IsNullOrWhiteSpace(trackIdentifier) || string.IsNullOrWhiteSpace(name)) return;
             uint adler32Id = Adler32Helper.GenerateAdler32_UNICODE(trackIdentifier, 0);
-            string realName = string.IsNullOrWhiteSpace(name) ? string.Empty : name;
             if (!RandomTrack.TrackList.ContainsKey(adler32Id))
             {
                 if (string.IsNullOrWhiteSpace(gameType))
@@ -1135,7 +1135,7 @@ namespace KartRider
                 {
                     hash = adler32Id,
                     ID = trackIdentifier,
-                    Name = realName,
+                    Name = name,
                     gameType = gameType
                 });
             }
@@ -1150,9 +1150,9 @@ namespace KartRider
                 {
                     existingTrack.gameType = ResolveVariantGameType(trackIdentifier);
                 }
-                if (!string.IsNullOrWhiteSpace(realName))
+                if (!string.IsNullOrWhiteSpace(name))
                 {
-                    existingTrack.Name = realName;
+                    existingTrack.Name = name;
                 }
             }
         }

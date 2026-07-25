@@ -1040,7 +1040,6 @@ namespace KartRider
 
         private static string ResolveVariantGameType(string trackIdentifier)
         {
-            if (string.IsNullOrWhiteSpace(trackIdentifier)) return;
             uint adler32Id = Adler32Helper.GenerateAdler32_UNICODE(trackIdentifier, 0);
             if (string.IsNullOrWhiteSpace(trackIdentifier)) return string.Empty;
             int suffixIndex = trackIdentifier.LastIndexOf('_');

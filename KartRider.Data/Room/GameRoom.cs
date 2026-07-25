@@ -25,6 +25,7 @@ public class GameRoom
     public float blueGauge { get; set; } = 0;
     public bool Lock { get; set; } = false;
     public bool Started { get; set; } = false;
+    public int StartedPlayerCount { get; set; } = 0; // 游戏开始时的真实玩家数（不包含AI），用于失效赛道判定
     public string LockPwd { get; set; } = "";
     public List<byte> CloseSlotIds { get; set; } = new List<byte>();
     public Dictionary<int, uint> TimeData { get; set; } = new Dictionary<int, uint>();

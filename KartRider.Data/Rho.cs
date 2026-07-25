@@ -1040,6 +1040,7 @@ namespace KartRider
 
         private static string ResolveVariantGameType(string trackIdentifier)
         {
+            if (string.IsNullOrWhiteSpace(trackIdentifier)) return;
             uint adler32Id = Adler32Helper.GenerateAdler32_UNICODE(trackIdentifier, 0);
             if (string.IsNullOrWhiteSpace(trackIdentifier)) return string.Empty;
             int suffixIndex = trackIdentifier.LastIndexOf('_');
@@ -1054,6 +1055,7 @@ namespace KartRider
 
         private static void AddOrUpdateTrackListEntry(string trackIdentifier, string name, bool basicAi = false)
         {
+            if (string.IsNullOrWhiteSpace(trackIdentifier)) return;
             uint adler32Id = Adler32Helper.GenerateAdler32_UNICODE(trackIdentifier, 0);
             string realName = string.IsNullOrWhiteSpace(name) ? string.Empty : name;
             if (RandomTrack.TrackList.ContainsKey(adler32Id))
@@ -1123,8 +1125,9 @@ namespace KartRider
 
         private static void AddRandomTrackEntry(string trackIdentifier, string gameType, string name)
         {
-            if (string.IsNullOrWhiteSpace(trackIdentifier) || string.IsNullOrWhiteSpace(name)) return;
+            if (string.IsNullOrWhiteSpace(trackIdentifier)) return;
             uint adler32Id = Adler32Helper.GenerateAdler32_UNICODE(trackIdentifier, 0);
+            string realName = string.IsNullOrWhiteSpace(name) ? string.Empty : name;
             if (!RandomTrack.TrackList.ContainsKey(adler32Id))
             {
                 if (string.IsNullOrWhiteSpace(gameType))
@@ -1135,7 +1138,7 @@ namespace KartRider
                 {
                     hash = adler32Id,
                     ID = trackIdentifier,
-                    Name = name,
+                    Name = realName,
                     gameType = gameType
                 });
             }
@@ -1150,9 +1153,9 @@ namespace KartRider
                 {
                     existingTrack.gameType = ResolveVariantGameType(trackIdentifier);
                 }
-                if (!string.IsNullOrWhiteSpace(name))
+                if (!string.IsNullOrWhiteSpace(realName))
                 {
-                    existingTrack.Name = name;
+                    existingTrack.Name = realName;
                 }
             }
         }

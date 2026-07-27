@@ -428,7 +428,7 @@ public static class MultyPlayer
             var RoomId = RoomManager.CreateRoom();
             var Room = RoomManager.GetRoom(RoomId);
             Room.RoomName = RoomName;
-            if (Password != "")
+            if (!string.IsNullOrEmpty(Password))
             {
                 Room.Lock = true;
             }
@@ -1239,13 +1239,14 @@ public static class MultyPlayer
     public static void GrSlotDataPacket(int roomId)
     {
         var room = RoomManager.GetRoom(roomId);
-        if (!room.Started)
+        if (room == null || room.Started)
         {
-            using (OutPacket outPacket = new OutPacket("GrSlotDataPacket"))
-            {
-                GrSlotDataPacket(roomId, outPacket);
-                BroadCast(roomId, outPacket);
-            }
+            return;
+        }
+        using (OutPacket outPacket = new OutPacket("GrSlotDataPacket"))
+        {
+            GrSlotDataPacket(roomId, outPacket);
+            BroadCast(roomId, outPacket);
         }
     }
 
@@ -1301,7 +1302,7 @@ public static class MultyPlayer
     static void GrSlotDataPacket(int roomId, OutPacket outPacket, bool enter = false, string nickname = "")
     {
         bool ob = false;
-        if (nickname != "")
+        if (!string.IsNullOrEmpty(nickname))
         {
             var profileConfig = Profile.ProfileService.GetProfileConfig(nickname);
             uint pmap = profileConfig.Rider.pmap;
@@ -1309,6 +1310,11 @@ public static class MultyPlayer
         }
 
         var room = RoomManager.GetRoom(roomId);
+        if (room == null)
+        {
+            return;
+        }
+
         outPacket.WriteUInt(room.track); // track name hash
         outPacket.WriteInt(0);
         outPacket.WriteBytes(room.RoomData); // 32
@@ -1342,7 +1348,7 @@ public static class MultyPlayer
                 IPEndPoint client = ClientManager.ClientToIPEndPoint(pConfig.Rider.ClientId);
                 outPacket.WriteEndPoint(new IPEndPoint(client.Address, pConfig.Rider.P2pPort));
                 outPacket.WriteEndPoint(new IPEndPoint(IPAddress.Any, 0));
-                if (room.RoomName.Contains("比赛") && nickname != "" && nickname != p.Nickname && !ob)
+                if (room.RoomName.Contains("比赛") && !string.IsNullOrEmpty(nickname) && nickname != p.Nickname && !ob)
                 {
                     outPacket.WriteString("跑跑卡丁车");
                     outPacket.WriteShort(0);

@@ -46,7 +46,7 @@ namespace ExcData
             if (config?.RiderItem == null)
             {
                 Console.WriteLine("[Level12_ExcData] Warning: ProfileConfig or RiderItem is null for {0}", Nickname);
-                return;
+                return skills;
             }
             var existingLevel = Level12List.FirstOrDefault(Level12 => Level12.ID == config.RiderItem.Set_Kart && Level12.SN == config.RiderItem.Set_KartSN);
             if (existingLevel != null)

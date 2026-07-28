@@ -187,21 +187,17 @@ namespace KartRider
                         if (!string.IsNullOrEmpty(nickname))
                         {
                             var playerConfig = ProfileService.GetProfileConfig(nickname);
-                            if (playerConfig?.Rider == null)
+                            if (playerConfig?.Rider != null)
                             {
-                                Console.WriteLine($"[UDP] Warning: ProfileConfig or Rider is null for {nickname}, skipping");
-                                continue;
+                                IPEndPoint client = ClientManager.ClientToIPEndPoint(playerConfig.Rider.ClientId);
+                                if (client != null)
+                                {
+                                    var clientudp = new IPEndPoint(client.Address, playerConfig.Rider.UdpPort);
+                                    p2p = (clientEP == clientudp);
+                                    udpClients.AddOrUpdate(nickname, (clientEP, hash, p2p), (key, oldValue) => (clientEP, hash, p2p));
+                                    // Console.WriteLine($"[UDP][{currentTime}][{nickname}] {packetValue}" + ": " + BitConverter.ToString(packetData).Replace("-", " "));
+                                }
                             }
-                            IPEndPoint client = ClientManager.ClientToIPEndPoint(playerConfig.Rider.ClientId);
-                            if (client == null)
-                            {
-                                Console.WriteLine($"[UDP] Warning: Client endpoint is null for {nickname}, skipping");
-                                continue;
-                            }
-                            var clientudp = new IPEndPoint(client.Address, playerConfig.Rider.UdpPort);
-                            p2p = (clientEP == clientudp);
-                            udpClients.AddOrUpdate(nickname, (clientEP, hash, p2p), (key, oldValue) => (clientEP, hash, p2p));
-                            // Console.WriteLine($"[UDP][{currentTime}][{nickname}] {packetValue}" + ": " + BitConverter.ToString(packetData).Replace("-", " "));
                         }
 
                         if (PacketDispatcher.Dispatch(typeof(UdpServer), packetValue, p, receiveBuffer, clientEP, this))

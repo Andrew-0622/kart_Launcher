@@ -9,6 +9,11 @@ namespace KartRider
         public static void DataReset(string Nickname)
         {
             var resetConfig = ProfileService.GetProfileConfig(Nickname);
+            if (resetConfig?.Rider == null)
+            {
+                Console.WriteLine("[DataReset] Warning: ProfileConfig or Rider is null for {0}", Nickname);
+                return;
+            }
             if (resetConfig.Rider.Lucci > uint.MaxValue)
             {
                 resetConfig.Rider.Lucci = SessionGroup.LucciMax;

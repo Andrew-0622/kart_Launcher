@@ -187,7 +187,17 @@ namespace KartRider
                         if (!string.IsNullOrEmpty(nickname))
                         {
                             var playerConfig = ProfileService.GetProfileConfig(nickname);
+                            if (playerConfig?.Rider == null)
+                            {
+                                Console.WriteLine($"[UDP] Warning: ProfileConfig or Rider is null for {nickname}, skipping");
+                                continue;
+                            }
                             IPEndPoint client = ClientManager.ClientToIPEndPoint(playerConfig.Rider.ClientId);
+                            if (client == null)
+                            {
+                                Console.WriteLine($"[UDP] Warning: Client endpoint is null for {nickname}, skipping");
+                                continue;
+                            }
                             var clientudp = new IPEndPoint(client.Address, playerConfig.Rider.UdpPort);
                             p2p = (clientEP == clientudp);
                             udpClients.AddOrUpdate(nickname, (clientEP, hash, p2p), (key, oldValue) => (clientEP, hash, p2p));
@@ -408,7 +418,17 @@ namespace KartRider
             else
             {
                 var profile = ProfileService.GetProfileConfig(nickname);
+                if (profile?.Rider == null)
+                {
+                    Console.WriteLine($"[UdpServer] Warning: ProfileConfig or Rider is null for {nickname}");
+                    return (new IPEndPoint(IPAddress.Any, 0), 0, false);
+                }
                 IPEndPoint client = ClientManager.ClientToIPEndPoint(profile.Rider.ClientId);
+                if (client == null)
+                {
+                    Console.WriteLine($"[UdpServer] Warning: Client endpoint is null for {nickname}");
+                    return (new IPEndPoint(IPAddress.Any, 0), 0, false);
+                }
                 var udpIP = new IPEndPoint(client.Address, profile.Rider.UdpPort);
                 return (udpIP, 0, false);
             }

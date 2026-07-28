@@ -48,8 +48,8 @@ namespace KartRider
                 oPacket.WriteByte(0);
                 oPacket.WriteInt(0);
                 oPacket.WriteInt(0);
-                oPacket.WriteUInt(ProfileService.GetProfileConfig(Nickname).Rider.Lucci);
-                oPacket.WriteUInt(ProfileService.GetProfileConfig(Nickname).Rider.Koin);
+                oPacket.WriteUInt(ProfileService.GetProfileConfig(Nickname)?.Rider?.Lucci ?? 0);
+                oPacket.WriteUInt(ProfileService.GetProfileConfig(Nickname)?.Rider?.Koin ?? 0);
                 oPacket.WriteUInt(Track);
                 Parent.Client.Send(oPacket);
             }
@@ -88,8 +88,8 @@ namespace KartRider
                 oPacket.WriteByte(0);
                 oPacket.WriteInt(0);
                 oPacket.WriteInt(0);
-                oPacket.WriteUInt(ProfileService.GetProfileConfig(Nickname).Rider.Lucci);
-                oPacket.WriteUInt(ProfileService.GetProfileConfig(Nickname).Rider.Koin);
+                oPacket.WriteUInt(ProfileService.GetProfileConfig(Nickname)?.Rider?.Lucci ?? 0);
+                oPacket.WriteUInt(ProfileService.GetProfileConfig(Nickname)?.Rider?.Koin ?? 0);
                 oPacket.WriteUInt(Track);
                 Parent.Client.Send(oPacket);
             }
@@ -111,7 +111,7 @@ namespace KartRider
 
             int StartPosition = oPacket.Position;
 
-            if (KartID == ProfileService.GetProfileConfig(Nickname).RiderItem.Set_Kart)
+            if (KartID == (ProfileService.GetProfileConfig(Nickname)?.RiderItem?.Set_Kart ?? 0))
             {
                 ExcSpec.Use_TuneSpec(Nickname, excSpecs);
                 ExcSpec.Use_PlantSpec(Nickname, excSpecs);

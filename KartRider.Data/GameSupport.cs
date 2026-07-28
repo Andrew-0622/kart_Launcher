@@ -89,6 +89,11 @@ namespace KartRider
         public static void PrGetGameOption(SessionGroup Parent, string Nickname)
         {
             var config = ProfileService.GetProfileConfig(Nickname);
+            if (config?.GameOption == null)
+            {
+                Console.WriteLine("[PrGetGameOption] Warning: ProfileConfig or GameOption is null for {0}", Nickname);
+                return;
+            }
             using (OutPacket outPacket = new OutPacket("PrGetGameOption"))
             {
                 outPacket.WriteFloat(config.GameOption.Set_BGM);
@@ -254,6 +259,11 @@ namespace KartRider
         public static void GetRider(string Nickname, OutPacket outPacket)
         {
             var config = ProfileService.GetProfileConfig(Nickname);
+            if (config?.RiderItem == null)
+            {
+                Console.WriteLine("[GetRider] Warning: ProfileConfig or RiderItem is null for {0}", Nickname);
+                return;
+            }
             outPacket.WriteUShort(config.RiderItem.Set_Character);
             outPacket.WriteUShort(config.RiderItem.Set_Paint);
             outPacket.WriteUShort(config.RiderItem.Set_Kart);
@@ -298,6 +308,11 @@ namespace KartRider
         {
             uint UserID = ClientManager.GetUserNO(nickname);
             var config = ProfileService.GetProfileConfig(nickname);
+            if (config?.Rider == null)
+            {
+                Console.WriteLine("[PrGetRiderInfo] Warning: ProfileConfig or Rider is null for {0}", nickname);
+                return;
+            }
             using (OutPacket outPacket = new OutPacket("PrGetRiderInfo"))
             {
                 outPacket.WriteByte(1);
@@ -356,6 +371,11 @@ namespace KartRider
         public static void PrCheckMyClubStatePacket(SessionGroup Parent, string Nickname)
         {
             var config = ProfileService.GetProfileConfig(Nickname);
+            if (config?.Rider == null)
+            {
+                Console.WriteLine("[PrCheckMyClubStatePacket] Warning: ProfileConfig or Rider is null for {0}", Nickname);
+                return;
+            }
             var server = MultyPlayer.GetServerEndPoint(Parent);
             using (OutPacket outPacket = new OutPacket("PrCheckMyClubStatePacket"))
             {
@@ -390,7 +410,7 @@ namespace KartRider
             {
                 outPacket.WriteUInt(User.Key);
                 outPacket.WriteString(User.Value);
-                outPacket.WriteUInt(ProfileService.GetProfileConfig(User.Value).Rider.RP);
+                outPacket.WriteUInt(ProfileService.GetProfileConfig(User.Value)?.Rider?.RP ?? 0);
                 outPacket.WriteHexString("00 00 00 00 00 00");
                 if (OnlinePlayers.Contains(User.Value))
                 {
@@ -412,7 +432,7 @@ namespace KartRider
             {
                 outPacket.WriteUInt(ClientManager.GetUserNO(nickname));
                 outPacket.WriteString(nickname);
-                outPacket.WriteUInt(ProfileService.GetProfileConfig(nickname).Rider.RP);
+                outPacket.WriteUInt(ProfileService.GetProfileConfig(nickname)?.Rider?.RP ?? 0);
                 outPacket.WriteHexString("00 00 00 00 00 00");
                 outPacket.WriteHexString("F2 06 00 00 00 00");
             }

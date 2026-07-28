@@ -383,6 +383,11 @@ public static class MultyPlayer
                     Parent.Client.Nickname = nickname;
                 }
                 var nicknameConfig = ProfileService.GetProfileConfig(nickname);
+                if (nicknameConfig?.Rider == null)
+                {
+                    Console.WriteLine("[PrChannelMoveIn] Warning: ProfileConfig or Rider is null for {0}", nickname);
+                    return;
+                }
                 nicknameConfig.Rider.ClientId = clientId;
                 ProfileService.Save(nickname, nicknameConfig);
                 using (OutPacket oPacket = new OutPacket("PrChannelMoveIn"))
@@ -466,7 +471,7 @@ public static class MultyPlayer
                     return;
                 }
                 Room.RoomMaster = player.ID;
-                uint pmap = ProfileService.GetProfileConfig(Parent.Client.Nickname).Rider.pmap;
+                uint pmap = ProfileService.GetProfileConfig(Parent.Client.Nickname)?.Rider?.pmap ?? 0;
                 if (pmap == 590)
                 {
                     Room.RoomMaster = 0;
@@ -495,7 +500,7 @@ public static class MultyPlayer
                     return;
                 }
                 Room.RoomMaster = player.ID;
-                uint pmap = ProfileService.GetProfileConfig(Parent.Client.Nickname).Rider.pmap;
+                uint pmap = ProfileService.GetProfileConfig(Parent.Client.Nickname)?.Rider?.pmap ?? 0;
                 if (pmap == 590)
                 {
                     Room.RoomMaster = 0;
@@ -1209,20 +1214,20 @@ public static class MultyPlayer
                 outPacket.WriteByte(id);
                 if (type == 0)
                 {
-                    outPacket.WriteString(ProfileService.GetProfileConfig(Parent.Client.Nickname).GameOption.QuickMsg.GetValueOrDefault(id) ?? "");
+                    outPacket.WriteString(ProfileService.GetProfileConfig(Parent.Client.Nickname)?.GameOption?.QuickMsg.GetValueOrDefault(id) ?? "");
                     BroadCast(roomId, outPacket, Parent.Client.Nickname);
                 }
                 else
                 {
-                    outPacket.WriteString(ProfileService.GetProfileConfig(Parent.Client.Nickname).GameOption.TeamQuickMsg.GetValueOrDefault(id) ?? "");
+                    outPacket.WriteString(ProfileService.GetProfileConfig(Parent.Client.Nickname)?.GameOption?.TeamQuickMsg.GetValueOrDefault(id) ?? "");
                     BroadCast(roomId, outPacket, Parent.Client.Nickname, player.Team);
                 }
                 if (room.GetPlayerCount(0) == 1)
                 {
-                    if (ProfileService.GetProfileConfig(Parent.Client.Nickname).GameOption.QuickMsg.GetValueOrDefault(id) == "结束游戏" ||
-                        ProfileService.GetProfileConfig(Parent.Client.Nickname).GameOption.QuickMsg.GetValueOrDefault(id) == "結束遊戲" ||
-                        ProfileService.GetProfileConfig(Parent.Client.Nickname).GameOption.TeamQuickMsg.GetValueOrDefault(id) == "结束游戏" ||
-                        ProfileService.GetProfileConfig(Parent.Client.Nickname).GameOption.TeamQuickMsg.GetValueOrDefault(id) == "結束遊戲")
+                    if (ProfileService.GetProfileConfig(Parent.Client.Nickname)?.GameOption?.QuickMsg.GetValueOrDefault(id) == "结束游戏" ||
+                        ProfileService.GetProfileConfig(Parent.Client.Nickname)?.GameOption?.QuickMsg.GetValueOrDefault(id) == "結束遊戲" ||
+                        ProfileService.GetProfileConfig(Parent.Client.Nickname)?.GameOption?.TeamQuickMsg.GetValueOrDefault(id) == "结束游戏" ||
+                        ProfileService.GetProfileConfig(Parent.Client.Nickname)?.GameOption?.TeamQuickMsg.GetValueOrDefault(id) == "結束遊戲")
                     {
                         StopGame(roomId, Parent);
                     }
@@ -1305,8 +1310,11 @@ public static class MultyPlayer
         if (!string.IsNullOrEmpty(nickname))
         {
             var profileConfig = Profile.ProfileService.GetProfileConfig(nickname);
-            uint pmap = profileConfig.Rider.pmap;
-            ob = (pmap == 718 || pmap == 590);
+            if (profileConfig?.Rider != null)
+            {
+                uint pmap = profileConfig.Rider.pmap;
+                ob = (pmap == 718 || pmap == 590);
+            }
         }
 
         var room = RoomManager.GetRoom(roomId);
@@ -1334,6 +1342,12 @@ public static class MultyPlayer
             if (member is Player p)
             {
                 var pConfig = ProfileService.GetProfileConfig(p.Nickname);
+                if (pConfig?.Rider == null)
+                {
+                    Console.WriteLine("[GrSlotDataPacket] Warning: ProfileConfig or Rider is null for player {0}, skipping", p.Nickname);
+                    outPacket.WriteInt(0);
+                    continue;
+                }
 
                 Console.WriteLine("Player Nickname = {0}, ID = {1}, SlotId = {2}", p.Nickname, p.ID, p.SlotId);
                 if (enter)
@@ -1346,6 +1360,12 @@ public static class MultyPlayer
                 }
                 outPacket.WriteUInt(ClientManager.GetUserNO(p.Nickname));
                 IPEndPoint client = ClientManager.ClientToIPEndPoint(pConfig.Rider.ClientId);
+                if (client == null)
+                {
+                    Console.WriteLine("[GrSlotDataPacket] Warning: Client endpoint is null for player {0}, ClientId={1}, skipping", p.Nickname, pConfig.Rider.ClientId);
+                    outPacket.WriteInt(0);
+                    continue;
+                }
                 outPacket.WriteEndPoint(new IPEndPoint(client.Address, pConfig.Rider.P2pPort));
                 outPacket.WriteEndPoint(new IPEndPoint(IPAddress.Any, 0));
                 if (room.RoomName.Contains("比赛") && !string.IsNullOrEmpty(nickname) && nickname != p.Nickname && !ob)
@@ -1444,9 +1464,21 @@ public static class MultyPlayer
             if (member is Player p)
             {
                 var pConfig = ProfileService.GetProfileConfig(p.Nickname);
+                if (pConfig?.Rider == null)
+                {
+                    Console.WriteLine("[GrSlotDataPacket] Warning: ProfileConfig or Rider is null for observer {0}, skipping", p.Nickname);
+                    outPacket.WriteInt(0);
+                    continue;
+                }
                 outPacket.WriteInt(p.PlayerType);
                 outPacket.WriteUInt(ClientManager.GetUserNO(p.Nickname));
                 IPEndPoint client = ClientManager.ClientToIPEndPoint(pConfig.Rider.ClientId);
+                if (client == null)
+                {
+                    Console.WriteLine("[GrSlotDataPacket] Warning: Client endpoint is null for observer {0}, ClientId={1}, skipping", p.Nickname, pConfig.Rider.ClientId);
+                    outPacket.WriteInt(0);
+                    continue;
+                }
                 outPacket.WriteEndPoint(new IPEndPoint(client.Address, pConfig.Rider.P2pPort));
                 outPacket.WriteEndPoint(new IPEndPoint(IPAddress.Any, 0));
                 outPacket.WriteString(p.Nickname);
@@ -1540,8 +1572,8 @@ public static class MultyPlayer
             oPacket.WriteInt();
 
             //kart data
-            ushort KartID = ProfileService.GetProfileConfig(p.Nickname).RiderItem.Set_Kart;
-            ushort FlyingPetID = ProfileService.GetProfileConfig(p.Nickname).RiderItem.Set_FlyingPet;
+            ushort KartID = ProfileService.GetProfileConfig(p.Nickname)?.RiderItem?.Set_Kart ?? 0;
+            ushort FlyingPetID = ProfileService.GetProfileConfig(p.Nickname)?.RiderItem?.Set_FlyingPet ?? 0;
             if (room.RoomName.Contains("原版"))
             {
                 StartGameData.GetDefaultSpac(oPacket, p.Nickname, room.SpeedType, KartID, 0);
@@ -1654,7 +1686,7 @@ public static class MultyPlayer
         }
         else if (room.GameType == 3 || room.GameType == 4)
         {
-            uint pmap = ProfileService.GetProfileConfig(Parent.Client.Nickname).Rider.pmap;
+            uint pmap = ProfileService.GetProfileConfig(Parent.Client.Nickname)?.Rider?.pmap ?? 0;
             if (pmap == 718 || (playerCount < 1 && room.RoomMaster < 8))
             {
                 room.RoomMaster = player.ID;
@@ -1703,7 +1735,7 @@ public static class MultyPlayer
         }
         else
         {
-            uint pmap = ProfileService.GetProfileConfig(Parent.Client.Nickname).Rider.pmap;
+            uint pmap = ProfileService.GetProfileConfig(Parent.Client.Nickname)?.Rider?.pmap ?? 0;
             if (pmap == 718 || (playerCount < 1 && room.RoomMaster < 8))
             {
                 room.RoomMaster = player.ID;
@@ -2096,6 +2128,11 @@ public static class MultyPlayer
                 if (member is Player p4)
                 {
                     var p4Config = ProfileService.GetProfileConfig(p4.Nickname);
+                    if (p4Config?.RiderItem == null)
+                    {
+                        Console.WriteLine("[GrGameResultPacket] Warning: ProfileConfig or RiderItem is null for {0}, skipping", p4.Nickname);
+                        continue;
+                    }
 
                     outPacket.WriteInt(p4.ID); // player id
                     outPacket.WriteUInt(timeData[p4.ID]);

@@ -43,6 +43,11 @@ namespace ExcData
             }
             List<short> skills = new List<short>();
             var config = ProfileService.GetProfileConfig(Nickname);
+            if (config?.RiderItem == null)
+            {
+                Console.WriteLine("[Level12_ExcData] Warning: ProfileConfig or RiderItem is null for {0}", Nickname);
+                return;
+            }
             var existingLevel = Level12List.FirstOrDefault(Level12 => Level12.ID == config.RiderItem.Set_Kart && Level12.SN == config.RiderItem.Set_KartSN);
             if (existingLevel != null)
             {
@@ -112,6 +117,11 @@ namespace ExcData
             if (Kart.defaultExceedType > 0)
             {
                 var v2config = ProfileService.GetProfileConfig(Nickname);
+                if (v2config?.RiderItem == null)
+                {
+                    Console.WriteLine("[Parts12_ExcData] Warning: ProfileConfig or RiderItem is null for {0}", Nickname);
+                    return;
+                }
                 var KartAndSN = new { Kart = v2config.RiderItem.Set_Kart, SN = v2config.RiderItem.Set_KartSN };
                 var existingParts = Parts12List.FirstOrDefault(parts => parts.ID == KartAndSN.Kart && parts.SN == KartAndSN.SN);
 

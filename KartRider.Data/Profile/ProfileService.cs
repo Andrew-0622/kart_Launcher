@@ -78,6 +78,11 @@ namespace Profile
         private static void Loaded(string Nickname)
         {
             var config = GetProfileConfig(Nickname);
+            if (config?.ServerSetting == null)
+            {
+                Console.WriteLine("[Loaded] Warning: ProfileConfig or ServerSetting is null for {0}", Nickname);
+                return;
+            }
             if (config.ServerSetting.PreventItem_Use == 0)
             {
                 Program.PreventItem = false;

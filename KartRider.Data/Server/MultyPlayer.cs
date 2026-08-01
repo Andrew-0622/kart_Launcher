@@ -1648,7 +1648,7 @@ public static class MultyPlayer
                 outPacket.WriteByte(1);
                 outPacket.WriteByte(0);
                 outPacket.WriteByte(0);
-                outPacket.WriteEncByte(room.GameType);
+                outPacket.WriteEncByte(0);
                 outPacket.WriteBytes(new byte[5]);
                 Parent.Client.Send(outPacket);
             }
@@ -1767,7 +1767,14 @@ public static class MultyPlayer
             {
                 if (Self != p.Nickname)
                 {
-                    p.Session.Client.Send(outPacket);
+                    try
+                    {
+                        p.Session?.Client?.Send(outPacket);
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine($"BroadCast OB Send Error [{p.Nickname}]: {ex.Message}");
+                    }
                 }
             }
         }
@@ -1780,11 +1787,25 @@ public static class MultyPlayer
                 {
                     if (team == 0)
                     {
-                        p.Session.Client.Send(outPacket);
+                        try
+                        {
+                            p.Session?.Client?.Send(outPacket);
+                        }
+                        catch (Exception ex)
+                        {
+                            Console.WriteLine($"BroadCast Send Error [{p.Nickname}]: {ex.Message}");
+                        }
                     }
                     else if (p.Team == team)
                     {
-                        p.Session.Client.Send(outPacket);
+                        try
+                        {
+                            p.Session?.Client?.Send(outPacket);
+                        }
+                        catch (Exception ex)
+                        {
+                            Console.WriteLine($"BroadCast TeamSend Error [{p.Nickname}]: {ex.Message}");
+                        }
                     }
                 }
             }

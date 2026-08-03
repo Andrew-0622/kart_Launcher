@@ -402,11 +402,11 @@ namespace KartRider
             }
         }
 
-        public static void GetMsgrFriendList(SessionGroup Parent, OutPacket outPacket)
+        public static void GetMsgrFriendList(OutPacket outPacket, int totalCount, List<KeyValuePair<uint, string>> segment)
         {
-            outPacket.WriteInt(ClientManager.UserNOToNickname.Count - 1);
+            outPacket.WriteInt(segment.Count);
             var OnlinePlayers = ClientManager.GetOnlinePlayers();
-            foreach (var User in ClientManager.UserNOToNickname.Where(u => u.Value != Parent.Client.Nickname))
+            foreach (var User in segment)
             {
                 outPacket.WriteUInt(User.Key);
                 outPacket.WriteString(User.Value);
@@ -426,9 +426,13 @@ namespace KartRider
 
         public static void RefreshRecommendFriendList(SessionGroup Parent, OutPacket outPacket)
         {
-            var OnlinePlayers = ClientManager.GetOnlinePlayers();
-            outPacket.WriteInt(OnlinePlayers.Count - 1);
-            foreach (var nickname in OnlinePlayers.Where(x => x != Parent.Client.Nickname))
+            var OnlinePlayers = ClientManager.GetOnlinePlayers()
+                .Where(x => x != Parent.Client.Nickname)
+                .OrderBy(x => Guid.NewGuid())
+                .Take(10)
+                .ToList();
+            outPacket.WriteInt(OnlinePlayers.Count);
+            foreach (var nickname in OnlinePlayers)
             {
                 outPacket.WriteUInt(ClientManager.GetUserNO(nickname));
                 outPacket.WriteString(nickname);

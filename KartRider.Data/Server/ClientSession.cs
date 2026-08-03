@@ -3721,25 +3721,41 @@ namespace KartRider
                     else if (hash == Adler32Helper.GenerateAdler32_ASCII("PqGetMsgrFriendList", 0))
                     {
                         uint unk1 = iPacket.ReadUInt();
-                        using (OutPacket outPacket = new OutPacket("PrGetMsgrFriendList"))
+                        var users = ClientManager.UserNOToNickname.Where(u => u.Value != this.Parent.Client.Nickname).ToList();
+
+                        for (int start = 0; start < users.Count; start += 100)
                         {
-                            GameSupport.GetMsgrFriendList(this.Parent, outPacket);
-                            outPacket.WriteInt(0);
-                            outPacket.WriteByte(1);
-                            outPacket.WriteBytes(new byte[8]);
-                            this.Parent.Client.Send(outPacket);
+                            int take = Math.Min(100, users.Count - start);
+                            var segment = users.Skip(start).Take(take).ToList();
+                            using (OutPacket outPacket = new OutPacket("PrGetMsgrFriendList"))
+                            {
+                                GameSupport.GetMsgrFriendList(outPacket, users.Count, segment);
+                                outPacket.WriteInt(0);
+                                outPacket.WriteByte(1);
+                                outPacket.WriteBytes(new byte[8]);
+                                this.Parent.Client.Send(outPacket);
+                            }
                         }
+
                         return;
                     }
                     else if (hash == Adler32Helper.GenerateAdler32_ASCII("PqRepeatGetMsgrFriendList", 0))
                     {
-                        using (OutPacket outPacket = new OutPacket("PrRepeatGetMsgrFriendList"))
+                        var users = ClientManager.UserNOToNickname.Where(u => u.Value != this.Parent.Client.Nickname).ToList();
+
+                        for (int start = 0; start < users.Count; start += 100)
                         {
-                            GameSupport.GetMsgrFriendList(this.Parent, outPacket);
-                            outPacket.WriteByte(1);
-                            outPacket.WriteBytes(new byte[8]);
-                            this.Parent.Client.Send(outPacket);
+                            int take = Math.Min(100, users.Count - start);
+                            var segment = users.Skip(start).Take(take).ToList();
+                            using (OutPacket outPacket = new OutPacket("PrRepeatGetMsgrFriendList"))
+                            {
+                                GameSupport.GetMsgrFriendList(outPacket, users.Count, segment);
+                                outPacket.WriteByte(1);
+                                outPacket.WriteBytes(new byte[8]);
+                                this.Parent.Client.Send(outPacket);
+                            }
                         }
+
                         return;
                     }
                     else if (hash == Adler32Helper.GenerateAdler32_ASCII("PqRefreshRecommendFriendList", 0))

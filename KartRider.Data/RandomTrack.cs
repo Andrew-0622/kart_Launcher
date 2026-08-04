@@ -217,7 +217,11 @@ namespace KartRider
 
                 if (availableTracks == null || availableTracks.Count == 0)
                 {
-                    var allTracks = TrackList.Values.Where(t => t.gameType == RandomTrackGameType).ToList();
+                    var allTracks = TrackList.Values
+                        .Where(t => t.gameType == RandomTrackGameType
+                            && !string.IsNullOrEmpty(t.ID)
+                            && !string.IsNullOrEmpty(t.Name))
+                        .ToList();
 
                     // 如果 ai 为 true，筛选出 basicAi == true 的 track
                     if (ai)
@@ -230,7 +234,11 @@ namespace KartRider
                     // 如果 AI 过滤后没有可用 track，回退到不过滤 AI
                     if (allTracks.Count == 0 && ai)
                     {
-                        allTracks = TrackList.Values.Where(t => t.gameType == RandomTrackGameType).ToList();
+                        allTracks = TrackList.Values
+                            .Where(t => t.gameType == RandomTrackGameType
+                                && !string.IsNullOrEmpty(t.ID)
+                                && !string.IsNullOrEmpty(t.Name))
+                            .ToList();
                     }
 
                     availableTracks = allTracks.Select(t => t.hash).ToList();

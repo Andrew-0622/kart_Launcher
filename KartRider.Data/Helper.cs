@@ -52,6 +52,57 @@ public static class Base64Helper
     }
 }
 
+/// <summary>
+/// 安全的 uint 反序列化转换器，处理越界数值和异常格式
+/// - 负数 → 0
+/// - 超过 uint.MaxValue → uint.MaxValue
+/// - 非数字字符串 → 0
+/// </summary>
+public class UInt32SafeConverter : System.Text.Json.Serialization.JsonConverter<uint>
+{
+    public override uint Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+    {
+        if (reader.TokenType == JsonTokenType.Number)
+        {
+            if (reader.TryGetUInt32(out uint value))
+                return value;
+            // 尝试作为 Int64 读取（处理溢出的正数）
+            if (reader.TryGetInt64(out long longValue))
+            {
+                if (longValue < 0)
+                {
+                    Console.WriteLine($"[UInt32SafeConverter] 负数 {longValue}，已重置为 0");
+                    return 0;
+                }
+                if (longValue > uint.MaxValue)
+                {
+                    Console.WriteLine($"[UInt32SafeConverter] 值 {longValue} 超出 uint 范围，已限制为 uint.MaxValue");
+                    return uint.MaxValue;
+                }
+            }
+        }
+        else if (reader.TokenType == JsonTokenType.String)
+        {
+            string str = reader.GetString();
+            if (uint.TryParse(str, out uint parsedValue))
+                return parsedValue;
+            if (long.TryParse(str, out long longValue))
+            {
+                if (longValue < 0) return 0;
+                if (longValue > uint.MaxValue) return uint.MaxValue;
+                return (uint)longValue;
+            }
+        }
+        Console.WriteLine($"[UInt32SafeConverter] 无法解析的 uint 值，已重置为 0");
+        return 0;
+    }
+
+    public override void Write(Utf8JsonWriter writer, uint value, JsonSerializerOptions options)
+    {
+        writer.WriteNumberValue(value);
+    }
+}
+
 // JSON 序列化工具类
 public static class JsonHelper
 {
@@ -59,8 +110,13 @@ public static class JsonHelper
     private static readonly JsonSerializerOptions _defaultOptions = new JsonSerializerOptions
     {
         WriteIndented = true,
-        Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping // 避免中文转义（可选）
+        Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping, // 避免中文转义（可选）
     };
+
+    static JsonHelper()
+    {
+        _defaultOptions.Converters.Add(new UInt32SafeConverter());
+    }
 
     /// <summary>
     /// 序列化对象为 JSON 字符串（字符串本身无 BOM, BOM 仅存在于字节流中）
@@ -104,7 +160,28 @@ public static class JsonHelper
             return default;
 
         options ??= _defaultOptions;
-        return JsonSerializer.Deserialize<T>(validJson, options);
+        try
+        {
+            return JsonSerializer.Deserialize<T>(validJson, options);
+        }
+        catch (JsonException ex)
+        {
+            Console.WriteLine($"[DeserializeNoBom] JSON 反序列化失败: {FileName} - {ex.Message}");
+            // 备份损坏的配置文件，避免数据丢失
+            try
+            {
+                string backupPath = FileName + ".bak";
+                if (File.Exists(backupPath))
+                    File.Delete(backupPath);
+                File.Copy(FileName, backupPath);
+                Console.WriteLine($"[DeserializeNoBom] 已将损坏的配置文件备份到: {backupPath}");
+            }
+            catch (Exception backupEx)
+            {
+                Console.WriteLine($"[DeserializeNoBom] 备份失败: {backupEx.Message}");
+            }
+            return default;
+        }
     }
 
     public static bool EnsureJsonUtf8NoBom(string filePath, out string jsonData, string jsonContent = null, bool validateJson = true)

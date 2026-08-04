@@ -18,7 +18,7 @@ namespace KartRider
         public int TotalSendPlaneCount = 6;
         public byte PlaneCheck1 = 0;
 
-        public static uint LucciMax = 2000000;
+        public static uint LucciMax = 2000000000;
 
         public SessionGroup(Socket clientSocket, Socket serverSocket)
         {

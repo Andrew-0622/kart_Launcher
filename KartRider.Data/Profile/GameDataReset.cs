@@ -14,23 +14,24 @@ namespace KartRider
                 Console.WriteLine("[DataReset] Warning: ProfileConfig or Rider is null for {0}", Nickname);
                 return;
             }
-            if (resetConfig.Rider.Lucci > uint.MaxValue)
+            // 注意: Lucci/RP/Koin/Cash/TcCash 均为 uint 类型，合法范围 0 ~ 4294967295
+            if (resetConfig.Rider.Lucci > SessionGroup.LucciMax)
             {
                 resetConfig.Rider.Lucci = SessionGroup.LucciMax;
             }
-            if (resetConfig.Rider.RP > uint.MaxValue)
+            if (resetConfig.Rider.RP > SessionGroup.LucciMax)
             {
                 resetConfig.Rider.RP = SessionGroup.LucciMax;
             }
-            if (resetConfig.Rider.Koin > uint.MaxValue)
+            if (resetConfig.Rider.Koin > SessionGroup.LucciMax)
             {
                 resetConfig.Rider.Koin = SessionGroup.LucciMax;
             }
-            if (resetConfig.Rider.Cash > uint.MaxValue)
+            if (resetConfig.Rider.Cash > SessionGroup.LucciMax)
             {
                 resetConfig.Rider.Cash = SessionGroup.LucciMax;
             }
-            if (resetConfig.Rider.TcCash > uint.MaxValue)
+            if (resetConfig.Rider.TcCash > SessionGroup.LucciMax)
             {
                 resetConfig.Rider.TcCash = SessionGroup.LucciMax;
             }

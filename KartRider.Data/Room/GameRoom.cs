@@ -296,13 +296,21 @@ public class GameRoom
                     RoomManager.RemoveRoom(this);
                     return true;
                 }
-                else if (removedMember is Ai ai)
-                {
-                    _IDs[ai.ID] = null;
-                    _slots[slotId] = null;
-                    MultyPlayer.GrSlotDataPacket(RoomId);
-                    return true;
-                }
+            }
+        }
+        else
+        {
+            // nickname为空时处理AI移除
+            RoomMember removedMember = _slots[slotId];
+            if (removedMember == null)
+                return false;
+
+            if (removedMember is Ai ai)
+            {
+                _IDs[ai.ID] = null;
+                _slots[slotId] = null;
+                MultyPlayer.GrSlotDataPacket(RoomId);
+                return true;
             }
         }
         return false;

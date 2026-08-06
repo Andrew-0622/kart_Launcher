@@ -325,7 +325,7 @@ public static class MultyPlayer
             {
                 Console.WriteLine($"Room Count: {RoomManager._rooms.Count}");
                 oPacket.WriteInt(RoomManager._rooms.Count); // 房间总数
-                oPacket.WriteInt(0);
+                oPacket.WriteInt(page);
                 oPacket.WriteInt(rooms.Count); // 房间数量
                 foreach (var _room in rooms)
                 {

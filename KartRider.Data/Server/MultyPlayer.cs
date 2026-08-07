@@ -1183,6 +1183,13 @@ public static class MultyPlayer
                 return; // 无效用户
             }
 
+            // 被邀请者已在房间中，不接受邀请
+            int targetRoomId = RoomManager.TryGetRoomId(nickname);
+            if (targetRoomId != -1)
+            {
+                return;
+            }
+
             var parent = ClientManager.GetParent(nickname);
             if (parent != null)
             {

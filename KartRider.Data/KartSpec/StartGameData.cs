@@ -536,7 +536,7 @@ namespace KartRider
             if (roomId != -1)
             {
                 var room = RoomManager.GetRoom(roomId);
-                if (room != null)
+                if (room != null && room.Started)
                 {
                     StartTimeAttack_SpeedType = room.SpeedType;
                     var parsed = SpeedType.Parse(room.RoomName);

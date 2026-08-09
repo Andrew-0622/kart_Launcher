@@ -1309,7 +1309,6 @@ public static class MultyPlayer
         room.Started = false;
         room.StartTicks = 0;
         room.StartedPlayerCount = 0;
-        room.TimeData = new Dictionary<int, uint>();
         room.Ready = new Dictionary<string, bool>();
     }
 

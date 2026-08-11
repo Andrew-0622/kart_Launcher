@@ -109,8 +109,8 @@ namespace KartRider
                 return;
             }
 
-            var modifier = new MemoryModifier();
-            modifier.LaunchAndModifyMemory(kartRiderDirectory, pinFile, pinFileBak);
+            var Game = new StartGame();
+            Game.Start(kartRiderDirectory, pinFile, pinFileBak);
         }
 
         private void Setting_Button_Click(object sender, EventArgs e)

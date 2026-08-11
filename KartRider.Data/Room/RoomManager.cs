@@ -29,35 +29,7 @@ public static class RoomManager
     {
         if (!(room.GetPlayerCount() > 0 || room.GetOBCount() > 0))
         {
-            // 如果房间使用了随机赛道（Track = 0 或 40），游戏已正式开始，且开始时有 >1 个真实玩家
-            // 所有玩家同时掉线，记录该赛道为失效赛道；排除单人游戏强退导致的误判
-            if ((room.track == 0 || room.track == 40) && room.Started && room.StartedPlayerCount > 1 && room.trackTemp != 0)
-            {
-                if (RandomTrack.TrackList.TryGetValue(room.trackTemp, out Track invalidTrack))
-                {
-                    string invalidTrackFile = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "InvalidTracks.json");
-                    List<InvalidTrackEntry> entries;
-                    if (File.Exists(invalidTrackFile))
-                    {
-                        string json = File.ReadAllText(invalidTrackFile);
-                        entries = JsonHelper.Deserialize<List<InvalidTrackEntry>>(json) ?? new List<InvalidTrackEntry>();
-                    }
-                    else
-                    {
-                        entries = new List<InvalidTrackEntry>();
-                    }
-                    entries.Add(new InvalidTrackEntry
-                    {
-                        Time = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"),
-                        ID = invalidTrack.ID,
-                        Name = invalidTrack.Name
-                    });
-                    File.WriteAllText(invalidTrackFile, JsonHelper.Serialize(entries));
-                    RandomTrack.TrackList.Remove(room.trackTemp);
-                }
-            }
             _rooms.TryRemove(room.RoomId, out _);
-            RandomTrack.ClearUsedTracks($"[{room.RoomName}][{room.RoomId.ToString()}]");
         }
         else
         {
